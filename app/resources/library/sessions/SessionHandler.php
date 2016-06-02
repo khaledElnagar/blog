@@ -73,9 +73,9 @@ class SessionHandler  implements \SessionHandlerInterface {
             
         
         if (!empty($this->db->get(array("id","=",$session_id)))) {
-            $result = $this->db->results();
-            if(isset($result[0])){
-                 return $result[0]['session_data']  ;
+            $result = $this->db->first();
+            if(isset($result)){
+                 return $result['session_data']  ;
             }  else {
                 return '';    
             }

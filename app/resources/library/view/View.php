@@ -26,6 +26,7 @@ class View {
         
        $name = str_replace('.','/',$name);
        include "app/views/". $name .".php";
+       exit();
         
     }
 }

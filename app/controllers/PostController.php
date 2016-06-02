@@ -17,8 +17,8 @@ use app\resources\library\view\View as View;
 class PostController {
     
     private $post;
-    private $view ;
     protected $values ;
+    
     public function __construct() {
         $this->post = new PostModel();
     }
@@ -31,7 +31,9 @@ class PostController {
     }
     
     public function getById($id){
-        $data = $this->post->getById($id);
+       
+        $data = $this->post->get(array('id','=',$id))->first();
+        
       return View::make("post.index",$data);
         
     }

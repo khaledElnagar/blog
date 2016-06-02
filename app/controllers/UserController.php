@@ -10,6 +10,7 @@ use app\resources\library\validator\Validation;
 use app\resources\library\sessions\Token;
 use app\resources\library\authentication\Hash;
 use app\resources\library\redirect\Redirect ;
+use app\resources\library\authentication\Authentication;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -28,27 +29,35 @@ class UserController {
     private $_userModel;
     private $_data ;
     private $_validator ;
-
-    public function __construct() {
+    private $_authenticate;
+    private $_logedIn = false ;
+    
+    public function __construct($id = '') {
         $this->_userModel = new UserModel();
+        $this->_validator  = new Validation("users");
+        $this->_authenticate = new Authentication();
+        if(!empty($id)){
+            $this->getById($id);
+        }
     }
+    
     
     public function getUsers(){
       $this->_data =  $this->_userModel->getAll();
     }
     
     public function getById($id = 1){
-        $this->_data = $this->_userModel->get(["id","=","1"])->results();
-        
+
+        $this->_data = $this->_userModel->get(["id","=",$id])->first();
+
     }
     
     public function create(){
         return View::make("user.register");
     }
     public function validate(){
-        $this->_validator  = new Validation("users");
         if(Input::exists()){
-            if(Token::check(Input::get("_token"))){
+            if(Token::check(Input::get(Config::get('session/token_name')))){
                 $validation = $this->_validator->check($_POST , array(
                    'username'=>array(
                        'required'=>true ,
@@ -125,9 +134,65 @@ class UserController {
         }
     }
 
+    
+    public function login() {
+        View::make("user.login");
+        
+    }
+    
+    public function authenticate() {
+        try{
+            if(Input::exists()){
+                if(Token::check(Input::get(Config::get('session/token_name')))){
+                    $validation = $this->_validator->check($_POST, array(
+                        'identifier'=>array(
+                              'required'=>true
+                              ),
+                        'password'=>array(
+                              'required'=>true
+                               )
+                    ));
+                  
+                    if($this->_validator->passed()){
+                       if($this->_authenticate->login(Input::get('identifier'), Input::get('password'))){
+                           $_SESSION[Config::get('session/session_name')] = $this->_authenticate->getAuthenticatedId();
+                           Redirect::redirectTo('/');
+                           
+                       }  else {
+                           Session::flash('failed', 'Wrong identifier or password');
+                           Redirect::redirectTo('/user/login');
+                       }
+                    }else{
+                        Redirect::redirectTo('/user/login',  $this->_validator->errors());
+                    }
+                }
+            }
+        } catch (Exception $ex) {
+
+        }
+    }
+    
+    public function isLoggedIn(){
+        if($this->_userModel->get(array("id","=",  Session::get(Config::get('session/session_name'))))->count())
+        {
+            $this->_logedIn = TRUE;
+        }else
+        {
+            $this->_logedIn = FALSE;
+        }
+        
+        return $this->_logedIn;
+    }
+
+    public function data(){
+        return $this->_data;
+    }
+
     public function logout(){
         try {
             Session::destroy();
+            $this->_logedIn = FALSE ; 
+            Redirect::redirectTo('/');
         } catch (Exception $ex) {
             die($ex->getMessage());
         }

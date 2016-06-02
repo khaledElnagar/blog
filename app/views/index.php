@@ -1,24 +1,24 @@
 <?php
 use app\resources\library\sessions\Session;
-/*
-if (! isset($_SESSION['visits'])) {
-    $_SESSION['visits'] = 0;
-}
-    $_SESSION['visits']++;
-print 'You have visited here '.$_SESSION['visits'].' times.';
+use app\controller\UserController ; 
+use app\resources\library\config\Config;
+$user = new UserController(Session::get(Config::get('session/session_name')));
+$currentuser = $user->data();
+?>
 
-echo "<a href=\"user/logout\" >logout</a>";
 
-*/
-echo Session::flash('success');
-Session::destroy ();
+<?php if($user->isLoggedIn()): ?>
+<h1>Welcome , <?=$currentuser['username'];?></h1>
+<h4><a href="/user/logout"> logout </a></h4>
+<?php else:?>
+    <p> You need to <a href="/user/login">Login</a> or <a href = "/user/create">Register</a> !</p>
+<?php endif;?>
 
-foreach ($data as $post){
-   echo "<div><a href=post/".$post['id'].">".$post['title']."</a><h2>";
-   echo "</h2><br>";
-   echo "<p>";
-   echo $post['subject'];
-   echo "</p></div>";
-
-}
+<?php foreach ($data as $post): ?>
+  <div>
+      <h2><a href=post/<?=$post['id'];?>><?= $post['title'];?></a></h2>
+      <br>
+      <p><?=$post['subject'];?></p>
+  </div>
+<?php endforeach; ?>
  

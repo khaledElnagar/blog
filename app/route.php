@@ -35,6 +35,13 @@ $route->add('/user/.+',function($id) use($user){
         $user->getById($id);
 });
 
+$route->add('/user/login',function() use($user){
+        $user->login();
+});
+
+$route->add('/user/authenticate',function() use($user){
+        $user->authenticate();
+});
 $route->add('/user/create',function() use($user){
         $user->create();
 });

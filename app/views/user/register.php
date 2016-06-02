@@ -2,6 +2,7 @@
     use app\resources\library\input\Input;
     use app\resources\library\sessions\Token;
     use app\resources\library\sessions\Session ;
+    use app\resources\library\config\Config ;
 
    $messages = Session::get('message');
 ?>
@@ -38,6 +39,6 @@
         <?= isset($messages['confirm_password'])? $messages['confirm_password'] :'';?>
 
     </div>
-    <input type ="hidden" name="_token" value="<?= Token::generate(); ?>"/>
+    <input type ="hidden" name="<?= Config::get("session/token_name") ;?>" value="<?= Token::generate(); ?>"/>
     <input type="submit" value="Register">
 </form>

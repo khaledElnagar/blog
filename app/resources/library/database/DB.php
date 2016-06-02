@@ -107,9 +107,10 @@ use app\resources\library\config\Config ;
     public  function setTable($table=""){
         $this->_table = $table;
     }
-    public function action($action , $where = array() , $flag = true){
+    
+    private function action($action , $where = array() , $flag = true){
         if(count($where)=== 3){
-            
+           
             $operators = array('=','>','<','>=','<=','!=');
             
             $field =$where[0] ;
@@ -130,7 +131,6 @@ use app\resources\library\config\Config ;
     
   
     public function get($where){
-        
         return $this->action("select * " , $where);
     }
     
@@ -187,7 +187,9 @@ use app\resources\library\config\Config ;
     }
 
     public function first(){
-        return $this->results()[0];
+        if(isset($this->results()[0])){
+            return $this->results()[0];
+        }
     }
 
     public function error(){
